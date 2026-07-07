@@ -38,6 +38,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def db_session_middleware(request, call_next):
+    from app.database.connection import DB_CONNECTED, init_db
+    if not DB_CONNECTED:
+        await init_db()
+    response = await call_next(request)
+    return response
+
 @app.get("/health", tags=["Health"])
 async def health_check():
     logger.info("Health check endpoint hit")
