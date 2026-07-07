@@ -7,7 +7,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "EventSphere"
     SECRET_KEY: str = "your_cryptographic_secret_key_string"
     DATABASE_URL: str = "mongodb://localhost:27017/eventsphere"
-    CORS_ORIGINS: Any = ["*"]
+    CORS_ORIGINS: Any = "*"
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
