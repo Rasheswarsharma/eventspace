@@ -10,6 +10,7 @@ import {
   Lock, Mail, User as UserIcon, Phone, ArrowRight, Loader2, 
   Building, Eye, EyeOff, Link as LinkIcon, Sparkles, CheckCircle2 
 } from "lucide-react";
+import Link from "next/link";
 
 function RegisterContent() {
   const router = useRouter();
@@ -576,12 +577,12 @@ function RegisterContent() {
 
         <div className="text-center text-sm text-slate-500 dark:text-zinc-400">
           Already have an account?{" "}
-          <a
+          <Link
             href="/login"
             className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
           >
             Login here
-          </a>
+          </Link>
         </div>
       </div>
     </div>

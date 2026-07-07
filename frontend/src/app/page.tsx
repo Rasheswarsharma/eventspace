@@ -6,6 +6,7 @@ import { api } from "@/services/api";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Users, Calendar, Award, Layers, LogOut, User as UserIcon } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   const { user, clearAuth, setAuth } = useAuthStore();
@@ -55,19 +56,19 @@ export default function Home() {
           </div>
           <div className="flex items-center gap-4">
             {mounted && user && (
-              <a
+              <Link
                 href="/dashboard"
                 className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "font-semibold text-indigo-600 dark:text-indigo-400")}
               >
                 Go to Dashboard
-              </a>
+              </Link>
             )}
-            <a
+            <Link
               href="/events"
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
             >
               Browse Events
-            </a>
+            </Link>
             
             {mounted && user ? (
               <div className="flex items-center gap-3">
@@ -85,18 +86,18 @@ export default function Home() {
               </div>
             ) : (
               <div className="flex gap-2">
-                <a
+                <Link
                   href="/login"
                   className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
                 >
                   Login
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/register"
                   className={cn(buttonVariants({ variant: "default", size: "sm" }))}
                 >
                   Sign Up
-                </a>
+                </Link>
               </div>
             )}
           </div>
@@ -118,7 +119,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             {mounted && user ? (
               <>
-                <a
+                <Link
                   href="/dashboard"
                   className={cn(
                     buttonVariants({ variant: "default", size: "default" }),
@@ -126,8 +127,8 @@ export default function Home() {
                   )}
                 >
                   Go to Dashboard
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/events"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "default" }),
@@ -135,11 +136,11 @@ export default function Home() {
                   )}
                 >
                   Explore Events
-                </a>
+                </Link>
               </>
             ) : (
               <>
-                <a
+                <Link
                   href="/events"
                   className={cn(
                     buttonVariants({ variant: "default", size: "default" }),
@@ -147,8 +148,8 @@ export default function Home() {
                   )}
                 >
                   Explore Events
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/register"
                   className={cn(
                     buttonVariants({ variant: "outline", size: "default" }),
@@ -156,7 +157,7 @@ export default function Home() {
                   )}
                 >
                   Register as Student
-                </a>
+                </Link>
               </>
             )}
           </div>

@@ -7,6 +7,7 @@ import { useAuthStore } from "@/store/useAuthStore";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ArrowRight, Loader2 } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -104,12 +105,12 @@ export default function LoginPage() {
                 <label htmlFor="password" className="block text-sm font-semibold text-slate-700 dark:text-zinc-300">
                   Password
                 </label>
-                <a
+                <Link
                   href="/forgot-password"
                   className="text-xs font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
                 >
                   Forgot your password?
-                </a>
+                </Link>
               </div>
               <input
                 id="password"
@@ -148,12 +149,12 @@ export default function LoginPage() {
 
         <div className="text-center text-sm text-slate-500 dark:text-zinc-400">
           Don&apos;t have an account yet?{" "}
-          <a
+          <Link
             href="/register"
             className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
           >
             Register here
-          </a>
+          </Link>
         </div>
       </div>
     </div>

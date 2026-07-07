@@ -59,7 +59,7 @@ api.interceptors.response.use(
       if (originalRequest.url?.includes("/auth/refresh")) {
         useAuthStore.getState().clearAuth();
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.href = "/eventspace/login";
         }
         return Promise.reject(error);
       }
@@ -91,7 +91,7 @@ api.interceptors.response.use(
         processQueue(refreshError, null);
         useAuthStore.getState().clearAuth();
         if (typeof window !== "undefined") {
-          window.location.href = "/login";
+          window.location.href = "/eventspace/login";
         }
         return Promise.reject(refreshError);
       } finally {

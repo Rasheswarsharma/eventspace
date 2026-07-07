@@ -5,6 +5,7 @@ import { api } from "@/services/api";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Mail, ArrowRight, Loader2, CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -60,7 +61,7 @@ export default function ForgotPasswordPage() {
               If the email <strong>{email}</strong> is registered, a password recovery link has been logged/sent. Please check your inbox or server logs.
             </p>
             <div className="pt-4 w-full">
-              <a
+              <Link
                 href="/login"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "default" }),
@@ -68,7 +69,7 @@ export default function ForgotPasswordPage() {
                 )}
               >
                 Back to Login
-              </a>
+              </Link>
             </div>
           </div>
         ) : (
@@ -120,12 +121,12 @@ export default function ForgotPasswordPage() {
         {!success && (
           <div className="text-center text-sm text-slate-500 dark:text-zinc-400">
             Remembered your password?{" "}
-            <a
+            <Link
               href="/login"
               className="font-semibold text-indigo-600 hover:underline dark:text-indigo-400"
             >
               Login here
-            </a>
+            </Link>
           </div>
         )}
       </div>
