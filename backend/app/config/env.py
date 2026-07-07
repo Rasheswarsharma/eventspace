@@ -1,13 +1,13 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from pydantic import field_validator
-from typing import List
+from typing import List, Any
 import json
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "EventSphere"
     SECRET_KEY: str = "your_cryptographic_secret_key_string"
     DATABASE_URL: str = "mongodb://localhost:27017/eventsphere"
-    CORS_ORIGINS: List[str] = ["*"]
+    CORS_ORIGINS: Any = ["*"]
 
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
