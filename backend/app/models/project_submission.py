@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from beanie import Document, PydanticObjectId
 from pydantic import Field, ConfigDict
 from pymongo import IndexModel, ASCENDING
@@ -16,6 +16,7 @@ class ProjectSubmission(Document):
     demo_video_url: Optional[str] = None
     document_urls: List[str] = Field(default_factory=list)
     notes: Optional[str] = Field(default=None, max_length=1500)
+    version_history: List[Dict[str, Any]] = Field(default_factory=list)
     
     submitted_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)

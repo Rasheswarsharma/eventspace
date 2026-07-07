@@ -1,6 +1,6 @@
 from typing import List, Optional
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from beanie import PydanticObjectId
 from app.models.user import User
 from app.models.event import Event
@@ -15,6 +15,7 @@ router = APIRouter()
 @router.post("/", response_model=EventResponse, status_code=status.HTTP_201_CREATED)
 async def create_event(
     payload: EventCreate,
+    request: Request,
     society_id: PydanticObjectId = Query(...),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -22,7 +23,7 @@ async def create_event(
     Creates a new event under a society. Authorized for Super Admins, or Society Presidents/Admins of that society.
     """
     is_president_admin = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN] 
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN] 
         and current_user.society_id == society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
@@ -53,7 +54,9 @@ async def create_event(
         action="create_event",
         target_model="events",
         target_id=event.id,
-        changes_payload={"name": event.name}
+        changes_payload={"name": event.name},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
     )
     return event
 
@@ -90,6 +93,7 @@ async def get_event(id: PydanticObjectId):
 async def update_event(
     id: PydanticObjectId,
     payload: EventUpdate,
+    request: Request,
     current_user: User = Depends(get_current_active_user)
 ):
     """
@@ -103,7 +107,7 @@ async def update_event(
         )
         
     is_manager = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST]
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST]
         and current_user.society_id == event.society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
@@ -128,13 +132,16 @@ async def update_event(
         action="update_event",
         target_model="events",
         target_id=event.id,
-        changes_payload=update_dict
+        changes_payload=update_dict,
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
     )
     return event
 
 @router.put("/{id}/status", response_model=EventResponse)
 async def update_event_status(
     id: PydanticObjectId,
+    request: Request,
     status_val: EventStatus = Query(...),
     current_user: User = Depends(get_current_active_user)
 ):
@@ -149,7 +156,7 @@ async def update_event_status(
         )
         
     is_manager = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST]
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST]
         and current_user.society_id == event.society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
@@ -169,7 +176,9 @@ async def update_event_status(
         action="change_event_status",
         target_model="events",
         target_id=event.id,
-        changes_payload={"old_status": old_status, "new_status": status_val}
+        changes_payload={"old_status": old_status, "new_status": status_val},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
     )
     return event
 
@@ -187,7 +196,7 @@ async def get_event_timeline(
         
     # Check tenant boundary
     is_manager = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST, UserRole.VOLUNTEER]
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.VOLUNTEER]
         and current_user.society_id == event.society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
@@ -204,6 +213,7 @@ async def get_event_timeline(
 @router.delete("/{id}", status_code=status.HTTP_200_OK)
 async def delete_event(
     id: PydanticObjectId,
+    request: Request,
     current_user: User = Depends(get_current_active_user)
 ):
     """
@@ -216,7 +226,10 @@ async def delete_event(
             detail="Event not found"
         )
         
-    is_president = current_user.role == UserRole.SOCIETY_PRESIDENT and current_user.society_id == event.society_id
+    is_president = (
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.ORGANIZATION_ADMIN] 
+        and current_user.society_id == event.society_id
+    )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
     if not (is_super_admin or is_president):
         raise HTTPException(
@@ -231,6 +244,8 @@ async def delete_event(
         actor_id=current_user.id,
         action="delete_event",
         target_model="events",
-        target_id=event.id
+        target_id=event.id,
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
     )
     return {"message": "Event successfully archived"}

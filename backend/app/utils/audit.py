@@ -8,7 +8,8 @@ async def log_activity(
     target_model: str,
     target_id: Optional[PydanticObjectId] = None,
     changes_payload: Optional[Dict[str, Any]] = None,
-    ip_address: Optional[str] = None
+    ip_address: Optional[str] = None,
+    user_agent: Optional[str] = None
 ):
     """
     Logs administrative operations to the AuditLogs collection.
@@ -19,6 +20,7 @@ async def log_activity(
         target_model=target_model,
         target_id=target_id,
         changes_payload=changes_payload or {},
-        ip_address=ip_address
+        ip_address=ip_address,
+        user_agent=user_agent
     )
     await log_entry.insert()

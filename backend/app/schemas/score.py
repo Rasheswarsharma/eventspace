@@ -7,6 +7,7 @@ class ScoreCreate(BaseModel):
     team_id: PydanticObjectId
     criteria_scores: Dict[str, float] = Field(..., description="Key-value float ratings per criteria, e.g., {'design': 9.0}")
     comments: Optional[str] = Field(default=None, max_length=1000)
+    is_finalized: bool = Field(default=False)
 
 class ScoreResponse(BaseModel):
     id: PydanticObjectId
@@ -16,6 +17,7 @@ class ScoreResponse(BaseModel):
     criteria_scores: Dict[str, float]
     total_score: float
     comments: Optional[str] = None
+    is_finalized: bool
     created_at: datetime
     updated_at: datetime
 

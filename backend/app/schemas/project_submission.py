@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 from beanie import PydanticObjectId
-from pydantic import BaseModel, Field, ConfigDict, HttpUrl
+from pydantic import BaseModel, Field, ConfigDict
 
 class ProjectSubmissionCreate(BaseModel):
     github_url: Optional[str] = None
@@ -23,6 +23,7 @@ class ProjectSubmissionResponse(BaseModel):
     demo_video_url: Optional[str] = None
     document_urls: List[str]
     notes: Optional[str] = None
+    version_history: List[Dict[str, Any]] = Field(default_factory=list)
     submitted_at: datetime
     updated_at: datetime
 

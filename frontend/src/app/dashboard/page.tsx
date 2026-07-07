@@ -403,7 +403,7 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
     <div className="flex h-screen overflow-hidden bg-[#F8FAFC] text-[#0F172A] dark:bg-zinc-950 dark:text-zinc-50 font-sans">
 
       {/* ==================== LEFT SIDEBAR ==================== */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 select-none">
+      <aside className="hidden md:flex flex-col w-64 border-r border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 select-none glassy-panel">
         <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-zinc-800 gap-2.5">
           <Layers className="h-6 w-6 text-[#2563EB]" />
           <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-[#2563EB] to-[#14B8A6] bg-clip-text text-transparent">
@@ -515,7 +515,7 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       <div className="flex-1 flex flex-col overflow-hidden">
 
         {/* ==================== TOP NAVIGATION ==================== */}
-        <header className="h-16 border-b border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between px-6 z-10 select-none">
+        <header className="h-16 border-b border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 flex items-center justify-between px-6 z-10 select-none glassy-panel">
           {/* Global Search Bar */}
           <div className="relative w-72">
             <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
@@ -736,7 +736,7 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
                 ].map((kpi, idx) => {
                   const Icon = kpi.icon;
                   return (
-                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm flex flex-col justify-between h-28">
+                    <div key={idx} className="rounded-xl border border-slate-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm flex flex-col justify-between h-28 card-lift">
                       <div className="flex items-center justify-between">
                         <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">{kpi.label}</span>
                         <div className={cn("p-1.5 rounded-lg", kpi.color)}>

@@ -44,7 +44,7 @@ async def assign_judge(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR
         ])
     )
     if not is_manager:
@@ -83,7 +83,7 @@ async def remove_judge(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR
         ])
     )
     if not is_manager:
@@ -130,7 +130,7 @@ async def submit_team_score(
         
     total = sum(payload.criteria_scores.values())
     
-    # check if already scored, if so, update it
+    # check if already scored, if so, check if finalized
     score_doc = await Score.find_one(
         Score.event_id == event_id,
         Score.team_id == payload.team_id,
@@ -138,9 +138,15 @@ async def submit_team_score(
     )
     
     if score_doc:
+        if score_doc.is_finalized:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Score has been finalized and cannot be modified"
+            )
         score_doc.criteria_scores = payload.criteria_scores
         score_doc.total_score = total
         score_doc.comments = payload.comments
+        score_doc.is_finalized = payload.is_finalized
         score_doc.updated_at = datetime.now(timezone.utc)
         await score_doc.save()
     else:
@@ -150,7 +156,8 @@ async def submit_team_score(
             judge_user_id=current_user.id,
             criteria_scores=payload.criteria_scores,
             total_score=total,
-            comments=payload.comments
+            comments=payload.comments,
+            is_finalized=payload.is_finalized
         )
         await score_doc.insert()
         
@@ -178,7 +185,7 @@ async def list_event_scores(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR
         ])
     )
     if is_manager:

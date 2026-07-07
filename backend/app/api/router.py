@@ -11,7 +11,8 @@ from app.api.budgets import router as budgets_router  # pyrefly: ignore [missing
 from app.api.chats import router as chats_router  # pyrefly: ignore [missing-import]
 from app.api.notifications import router as notifications_router  # pyrefly: ignore [missing-import]
 from app.api.faculty import router as faculty_router  # pyrefly: ignore [missing-import]
-from app.api.invitations import router as invitations_router  # pyrefly: ignore [missing-import]
+from app.api.invitations import router as invitations_router
+from app.api.submissions import router as submissions_router
 
 api_router = APIRouter()
 
@@ -28,3 +29,4 @@ api_router.include_router(chats_router, prefix="/chats", tags=["Chats"])
 api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 api_router.include_router(faculty_router, prefix="/faculty", tags=["Faculty Advisor"])
 api_router.include_router(invitations_router, prefix="/invitations", tags=["Invitations"])
+api_router.include_router(submissions_router, prefix="", tags=["Project Submissions"])

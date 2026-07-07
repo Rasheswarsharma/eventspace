@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from fastapi import Depends, HTTPException, status  # pyrefly: ignore [missing-import]
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials  # pyrefly: ignore [missing-import]
 from app.services.security import decode_access_token  # pyrefly: ignore [missing-import]
@@ -99,3 +99,31 @@ def require_roles(allowed_roles: List[UserRole]):
             )
         return current_user
     return dependency
+
+def require_permissions(required_permissions: List[str]):
+    """
+    Dependency factory to check if the authenticated user's role has all the required permissions.
+    """
+    async def dependency(current_user: User = Depends(get_current_active_user)) -> User:
+        from app.core.permissions import ROLE_PERMISSIONS
+        user_permissions = ROLE_PERMISSIONS.get(current_user.role, [])
+        if not all(perm in user_permissions for perm in required_permissions):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You do not have the required permissions to perform this action",
+            )
+        return current_user
+    return dependency
+
+async def get_user_society_id(current_user: User = Depends(get_current_active_user)) -> Optional[PydanticObjectId]:
+    """
+    Enforces that a user belongs to a society/organization, unless they are a SUPER_ADMIN.
+    """
+    if current_user.role == UserRole.SUPER_ADMIN:
+        return None
+    if not current_user.society_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User is not affiliated with any organization"
+        )
+    return current_user.society_id

@@ -73,7 +73,7 @@ async def list_event_volunteers(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     if not is_manager:
@@ -99,7 +99,7 @@ async def update_volunteer_request_status(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     if not is_manager:
@@ -151,7 +151,7 @@ async def create_volunteer_task(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     if not is_manager:
@@ -200,7 +200,7 @@ async def list_event_tasks(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     
@@ -230,7 +230,7 @@ async def update_task(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     is_assigned_volunteer = task.volunteer_user_id == current_user.id
@@ -273,7 +273,7 @@ async def delete_task(
     is_manager = (
         current_user.role in [UserRole.SUPER_ADMIN]
         or (current_user.society_id == event.society_id and current_user.role in [
-            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST
+            UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.COORDINATOR, UserRole.VOLUNTEER_LEAD
         ])
     )
     if not is_manager:

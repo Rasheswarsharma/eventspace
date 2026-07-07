@@ -15,6 +15,7 @@ class AuditLog(Document):
     
     changes_payload: Dict[str, Any] = Field(default_factory=dict)
     ip_address: Optional[str] = None
+    user_agent: Optional[str] = None
     timestamp: datetime = Field(default_factory=utc_now)
 
     model_config = ConfigDict(

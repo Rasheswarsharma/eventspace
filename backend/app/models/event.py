@@ -22,6 +22,7 @@ class Event(Document):
     
     registration_deadline: Optional[datetime] = None
     registration_capacity: Optional[int] = Field(default=None, ge=1)
+    submission_deadline: Optional[datetime] = None
     
     # List of assigned Judge user IDs
     judges: List[PydanticObjectId] = Field(default_factory=list)

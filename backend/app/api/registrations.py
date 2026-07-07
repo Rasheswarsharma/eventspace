@@ -121,7 +121,7 @@ async def list_event_registrations(
         raise HTTPException(status_code=404, detail="Event not found")
         
     is_manager = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST, UserRole.VOLUNTEER]
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST, UserRole.VOLUNTEER]
         and current_user.society_id == event.society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
@@ -146,7 +146,7 @@ async def cancel_registration(
     event = await Event.get(registration.event_id)
     is_owner = current_user.id == registration.user_id or current_user.email == registration.email
     is_manager = (
-        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.EVENT_HOST]
+        current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN, UserRole.EVENT_HOST]
         and current_user.society_id == event.society_id
     )
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN

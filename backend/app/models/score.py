@@ -16,6 +16,7 @@ class Score(Document):
     criteria_scores: Dict[str, float] = Field(default_factory=dict)
     total_score: float = Field(default=0.0)
     comments: Optional[str] = Field(default=None, max_length=1000)
+    is_finalized: bool = Field(default=False)
     
     created_at: datetime = Field(default_factory=utc_now)
     updated_at: datetime = Field(default_factory=utc_now)

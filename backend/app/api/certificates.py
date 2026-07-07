@@ -2,7 +2,7 @@ import hashlib
 import secrets
 from typing import List, Optional
 from datetime import datetime, timezone
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from beanie import PydanticObjectId
 from app.models.user import User
 from app.models.event import Event
@@ -19,6 +19,7 @@ router = APIRouter()
 async def generate_event_certificates(
     event_id: PydanticObjectId,
     payload: CertificateGenerateRequest,
+    request: Request,
     current_user: User = Depends(get_current_active_user)
 ):
     """
@@ -82,7 +83,9 @@ async def generate_event_certificates(
         action="generate_certificates",
         target_model="events",
         target_id=event_id,
-        changes_payload={"count": len(generated_certs)}
+        changes_payload={"count": len(generated_certs)},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
     )
     
     return generated_certs

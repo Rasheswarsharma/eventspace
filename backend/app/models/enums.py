@@ -9,6 +9,11 @@ class UserRole(str, Enum):
     JUDGE = "judge"
     VOLUNTEER = "volunteer"
     STUDENT = "student"
+    ORGANIZATION_ADMIN = "organization_admin"
+    COORDINATOR = "coordinator"
+    VOLUNTEER_LEAD = "volunteer_lead"
+    MENTOR = "mentor"
+    PARTICIPANT = "participant"
 
 class EventStatus(str, Enum):
     DRAFT = "draft"

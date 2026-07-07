@@ -31,7 +31,7 @@ def hash_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register(payload: UserCreate):
+async def register(payload: UserCreate, request: Request):
     """
     Registers a new student/organizer user account.
     """
@@ -130,12 +130,24 @@ async def register(payload: UserCreate):
             invite.updated_at = datetime.now(timezone.utc)
             await invite.save()
 
+    # Log registration activity
+    from app.utils.audit import log_activity
+    await log_activity(
+        actor_id=user.id if 'user' in locals() and hasattr(user, 'id') else None,
+        action="user_registration",
+        target_model="users",
+        target_id=user.id if 'user' in locals() and hasattr(user, 'id') else None,
+        changes_payload={"email": payload.email},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
+    )
+
     logger.info(f"Registered user: {user.email} (ID: {user.id})")
     logger.info(f"MOCK EMAIL: Registration verification link for {user.email}: http://localhost:3000/verify-email?token={verification_token}")
     return user
 
 @router.post("/login")
-async def login(payload: UserLogin, response: Response):
+async def login(payload: UserLogin, response: Response, request: Request):
     """
     Authenticates user, creates session, and returns access token.
     """
@@ -241,6 +253,18 @@ async def login(payload: UserLogin, response: Response):
         max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
     )
     
+    # Log login activity
+    from app.utils.audit import log_activity
+    await log_activity(
+        actor_id=user.id,
+        action="user_login",
+        target_model="users",
+        target_id=user.id,
+        changes_payload={"email": user.email},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
+    )
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -410,6 +434,7 @@ async def reset_password(payload: PasswordResetConfirm):
 @router.put("/role")
 async def update_role(
     payload: RoleUpdate,
+    request: Request,
     current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN]))
 ):
     """Updates user privileges (role). Super Admin only."""
@@ -425,4 +450,17 @@ async def update_role(
     await target_user.save()
     
     logger.info(f"Super Admin {current_user.email} updated role of user {target_user.email} from {old_role} to {payload.role}")
+    
+    # Log role change activity
+    from app.utils.audit import log_activity
+    await log_activity(
+        actor_id=current_user.id,
+        action="role_change",
+        target_model="users",
+        target_id=target_user.id,
+        changes_payload={"email": target_user.email, "old_role": old_role, "new_role": payload.role},
+        ip_address=request.client.host if request.client and request.client.host else None,
+        user_agent=request.headers.get("user-agent")
+    )
+
     return {"message": "User role updated successfully", "user_id": str(target_user.id), "new_role": target_user.role}
