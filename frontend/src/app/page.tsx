@@ -58,7 +58,9 @@ export default function Home() {
               Eventspace
             </span>
           </div>
-          <div className="flex items-center gap-5">
+
+          {/* Desktop Navigation */}
+          <div className="hidden md:flex items-center gap-5">
             {mounted && user && (
               <Link
                 href="/dashboard"
@@ -105,12 +107,37 @@ export default function Home() {
               </div>
             )}
           </div>
+
+          {/* Mobile Navigation (Simplified to prevent horizontal overflow) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Link
+              href="/events"
+              className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "text-xs px-2.5 py-1.5")}
+            >
+              Events
+            </Link>
+            {mounted && user ? (
+              <Link
+                href="/dashboard"
+                className={cn(buttonVariants({ variant: "default", size: "sm" }), "text-xs px-2.5 py-1.5 bg-indigo-600 text-white dark:bg-indigo-500")}
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/login"
+                className={cn(buttonVariants({ variant: "default", size: "sm" }), "text-xs px-2.5 py-1.5 bg-indigo-600 text-white dark:bg-indigo-500")}
+              >
+                Login
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative flex flex-1 flex-col justify-center px-6 py-20 md:px-12 bg-gradient-premium border-b border-slate-200/60 dark:border-zinc-900 overflow-hidden">
-        <div className="mx-auto max-w-7xl w-full grid md:grid-cols-12 gap-12 items-center">
+      <section className="relative flex flex-1 flex-col justify-center bg-gradient-premium border-b border-slate-200/60 dark:border-zinc-900 overflow-hidden">
+        <div className="mx-auto max-w-7xl w-full grid md:grid-cols-12 gap-12 items-center px-6 py-20 md:px-12">
           
           {/* Left Text Column */}
           <div className="md:col-span-7 space-y-8 text-left animate-in fade-in slide-in-from-left-4 duration-1000">
