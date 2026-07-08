@@ -26,6 +26,9 @@ from app.models.enums import UserRole  # pyrefly: ignore [missing-import]
 logger = logging.getLogger("eventsphere.auth")
 router = APIRouter()
 
+# Global in-memory dictionary to store registered mock users when database is disconnected
+MOCK_USERS_DB = {}
+
 def hash_token(token: str) -> str:
     """Utility to hash a token using SHA-256 before database storage."""
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
@@ -48,7 +51,12 @@ async def register(payload: UserCreate, request: Request):
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)
         }
-        logger.info(f"Registered MOCK user: {payload.email}")
+        # Save to global in-memory DB for authentication
+        MOCK_USERS_DB[payload.email] = {
+            "user": mock_user,
+            "password_hash": hash_password(payload.password)
+        }
+        logger.info(f"Registered MOCK user to in-memory database: {payload.email}")
         return mock_user
 
     # Check if email is already registered
@@ -154,6 +162,25 @@ async def login(payload: UserLogin, response: Response, request: Request):
     from app.database.connection import DB_CONNECTED
     
     if not DB_CONNECTED:
+        # Check against in-memory mock database first
+        if payload.email in MOCK_USERS_DB:
+            mock_data = MOCK_USERS_DB[payload.email]
+            if verify_password(payload.password, mock_data["password_hash"]):
+                access_token = create_access_token(user_id=str(mock_data["user"]["id"]), role=mock_data["user"]["role"].value if hasattr(mock_data["user"]["role"], "value") else str(mock_data["user"]["role"]))
+                response.set_cookie(
+                    key="refresh_token",
+                    value=generate_refresh_token_string(),
+                    httponly=True,
+                    secure=True,
+                    samesite="strict",
+                    max_age=REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
+                )
+                return {
+                    "access_token": access_token,
+                    "token_type": "bearer",
+                    "user": mock_data["user"]
+                }
+
         if payload.email == "testing1234@gmail.com" and payload.password == "12345678":
             mock_id = "668a62bf784b23b18c065fde"
             access_token = create_access_token(user_id=mock_id, role=UserRole.SUPER_ADMIN.value)
