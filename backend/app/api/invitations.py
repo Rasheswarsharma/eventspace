@@ -22,10 +22,10 @@ async def create_invitation(
     Volunteers, Judges, Faculty Coordinators, and Event Hosts.
     """
     # Permission verification
-    is_president = current_user.role == UserRole.SOCIETY_PRESIDENT and current_user.society_id == payload.society_id
+    is_manager = current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN] and current_user.society_id == payload.society_id
     is_super_admin = current_user.role == UserRole.SUPER_ADMIN
     
-    if not (is_super_admin or is_president):
+    if not (is_super_admin or is_manager):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You do not have permission to invite users for this society tenant"
@@ -68,7 +68,7 @@ async def list_invitations(
     if current_user.role == UserRole.SUPER_ADMIN:
         return await Invitation.all().to_list()
         
-    is_manager = current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN]
+    is_manager = current_user.role in [UserRole.SOCIETY_PRESIDENT, UserRole.SOCIETY_ADMIN, UserRole.ORGANIZATION_ADMIN]
     if is_manager:
         return await Invitation.find(Invitation.society_id == current_user.society_id).to_list()
         

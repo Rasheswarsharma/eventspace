@@ -15,7 +15,17 @@ class Event(Document):
     date: datetime
     venue: str = Field(..., min_length=1, max_length=250)
     banner_url: Optional[str] = None
+    cover_banner_url: Optional[str] = None
     status: EventStatus = Field(default=EventStatus.DRAFT)
+    
+    # Extended Event Details Page fields
+    rules: List[str] = Field(default_factory=list)
+    schedule: List[Dict[str, Any]] = Field(default_factory=list)
+    speakers: List[Dict[str, Any]] = Field(default_factory=list)
+    prizes: List[Dict[str, Any]] = Field(default_factory=list)
+    sponsors: List[Dict[str, Any]] = Field(default_factory=list)
+    gallery_urls: List[str] = Field(default_factory=list)
+    faqs: List[Dict[str, str]] = Field(default_factory=list)
     
     # Active modules enabled for this event (e.g. ['registration', 'budget', 'certificates', 'judging'])
     active_modules: List[str] = Field(default_factory=list)

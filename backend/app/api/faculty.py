@@ -13,7 +13,7 @@ router = APIRouter()
 
 @router.get("/dashboard", response_model=Dict[str, Any])
 async def get_faculty_dashboard_stats(
-    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY]))
+    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY, UserRole.ORGANIZATION_ADMIN, UserRole.SOCIETY_PRESIDENT]))
 ):
     """
     Returns general stats for the Faculty Advisor dashboard:
@@ -43,7 +43,7 @@ async def get_faculty_dashboard_stats(
 
 @router.get("/events/pending", response_model=List[Any])
 async def list_pending_events(
-    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY]))
+    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY, UserRole.ORGANIZATION_ADMIN, UserRole.SOCIETY_PRESIDENT]))
 ):
     """
     Lists all events awaiting faculty approval (Draft events).
@@ -54,7 +54,7 @@ async def list_pending_events(
 async def approve_event_proposal(
     id: PydanticObjectId,
     remarks: str = Query(default="Approved"),
-    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY]))
+    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY, UserRole.ORGANIZATION_ADMIN, UserRole.SOCIETY_PRESIDENT]))
 ):
     """
     Approves an event proposal. Sets status to PUBLISHED.
@@ -80,7 +80,7 @@ async def approve_event_proposal(
 async def reject_event_proposal(
     id: PydanticObjectId,
     remarks: str = Query(...),
-    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY]))
+    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY, UserRole.ORGANIZATION_ADMIN, UserRole.SOCIETY_PRESIDENT]))
 ):
     """
     Rejects an event proposal with remarks. Soft archives it.
@@ -103,7 +103,7 @@ async def reject_event_proposal(
 
 @router.get("/budgets/pending")
 async def list_pending_budget_transactions(
-    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY]))
+    current_user: User = Depends(require_roles([UserRole.SUPER_ADMIN, UserRole.FACULTY, UserRole.ORGANIZATION_ADMIN, UserRole.SOCIETY_PRESIDENT]))
 ):
     """
     Lists all pending budget incomes/expenses transactions from all events.

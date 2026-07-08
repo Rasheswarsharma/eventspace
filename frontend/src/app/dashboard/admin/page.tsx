@@ -6,8 +6,8 @@ import RoleGuard from "@/components/RoleGuard";
 
 export default function AdminDashboardPage() {
   return (
-    <RoleGuard allowedRoles={["society_president", "society_admin"]}>
-      <DashboardContainer defaultRole="society_president" />
+    <RoleGuard allowedRoles={["society_president", "society_admin", "organization_admin"]}>
+      <DashboardContainer defaultRole="organization_admin" />
     </RoleGuard>
   );
 }

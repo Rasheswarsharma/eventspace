@@ -17,6 +17,7 @@ interface MockEvent {
   venue: string;
   status: string;
   description: string;
+  banner_url?: string;
 }
 
 export default function EventsPage() {
@@ -186,52 +187,58 @@ export default function EventsPage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredEvents.map((ev) => (
-              <div key={ev.id} className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between space-y-4 card-lift shadow-sm relative overflow-hidden">
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className={cn(
-                      "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                      ev.status === "Active"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400 dark:border-emerald-900/50"
-                        : "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400 dark:border-indigo-900/50"
-                    )}>
-                      {ev.status}
-                    </span>
-                    <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
-                      <Calendar className="h-3.5 w-3.5" />
-                      {ev.date}
-                    </span>
-                  </div>
-
-                  <h3 className="text-xl font-bold tracking-tight hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
-                    {ev.title}
-                  </h3>
-
-                  <p className="text-sm text-slate-600 dark:text-zinc-400 line-clamp-3 leading-relaxed">
-                    {ev.description}
-                  </p>
+              <div key={ev.id} className="rounded-xl border border-slate-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 flex flex-col justify-between card-lift shadow-sm relative overflow-hidden">
+                {/* Banner */}
+                <div className="h-40 w-full bg-gradient-to-r from-indigo-500 to-purple-600 relative flex items-center justify-center text-white">
+                  {ev.banner_url ? (
+                    <img src={ev.banner_url} alt={ev.title} className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-black/20 backdrop-blur-[1px] flex items-center justify-center font-black tracking-wider text-sm opacity-80">
+                      {ev.title.substring(0, 3).toUpperCase()}
+                    </div>
+                  )}
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-zinc-800/60">
-                  <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
-                    <span className="flex items-center gap-1 font-medium">
-                      <MapPin className="h-3.5 w-3.5 text-indigo-500" />
-                      {ev.venue}
-                    </span>
-                    <span className="font-semibold text-slate-700 dark:text-zinc-300">
-                      {ev.registered} registered
-                    </span>
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className={cn(
+                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                        ev.status === "Active" || ev.status === "registration_open"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-400"
+                          : "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-400"
+                      )}>
+                        {ev.status.replace("_", " ")}
+                      </span>
+                      <span className="text-xs text-slate-400 font-medium flex items-center gap-1">
+                        <Calendar className="h-3.5 w-3.5" />
+                        {new Date(ev.date).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <h3 className="text-lg font-bold tracking-tight hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
+                      {ev.title}
+                    </h3>
                   </div>
 
-                  <Link
-                    href={`/register?event=${ev.id}`}
-                    className={cn(
-                      buttonVariants({ variant: "default", size: "sm" }),
-                      "w-full bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600"
-                    )}
-                  >
-                    Register Now
-                  </Link>
+                  <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-zinc-800/60">
+                    <div className="flex items-center justify-between text-xs text-slate-500 dark:text-zinc-400">
+                      <span className="flex items-center gap-1 font-medium">
+                        <MapPin className="h-3.5 w-3.5 text-indigo-500" />
+                        {ev.venue}
+                      </span>
+                    </div>
+
+                    <Link
+                      href={`/events/${ev.id}`}
+                      className={cn(
+                        buttonVariants({ variant: "default", size: "sm" }),
+                        "w-full bg-indigo-600 text-white hover:bg-indigo-700 dark:bg-indigo-500 dark:hover:bg-indigo-600 font-bold"
+                      )}
+                    >
+                      Register
+                    </Link>
+                  </div>
                 </div>
               </div>
             ))}

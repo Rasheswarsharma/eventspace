@@ -143,6 +143,12 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
 
   // Quick Action Modal states
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [customFields, setCustomFields] = useState<Array<{ name: string; label: string; type: string; required: boolean; options?: string[] }>>([]);
+  const [newFieldName, setNewFieldName] = useState("");
+  const [newFieldLabel, setNewFieldLabel] = useState("");
+  const [newFieldType, setNewFieldType] = useState("text");
+  const [newFieldRequired, setNewFieldRequired] = useState(false);
+  const [newFieldOptions, setNewFieldOptions] = useState("");
   const [showAddVolunteerModal, setShowAddVolunteerModal] = useState(false);
   const [showIssueCertModal, setShowIssueCertModal] = useState(false);
   const [showAnnounceModal, setShowAnnounceModal] = useState(false);
@@ -311,9 +317,23 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
   };
 
   // Quick Action triggers
-  const executeCreateEvent = (e: React.FormEvent) => {
+  const executeCreateEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newEvent.title || !newEvent.venue) return;
+
+    const payload = {
+      name: newEvent.title,
+      date: newEvent.date ? new Date(newEvent.date).toISOString() : new Date().toISOString(),
+      venue: newEvent.venue,
+      registration_form_schema: customFields
+    };
+
+    try {
+      await api.post("/events", payload);
+    } catch (err) {
+      console.log("Mock mode active or DB disconnected. Saving locally.");
+    }
+
     const added: MockEvent = {
       id: Date.now().toString(),
       title: newEvent.title,
@@ -327,6 +347,7 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
     setAllEvents([added, ...allEvents]);
     setShowCreateEventModal(false);
     setNewEvent({ title: "", date: "", venue: "", registered: 0, volunteers: 0 });
+    setCustomFields([]);
     // Push a notification
     setNotifications([
       { id: Date.now().toString(), text: `New Event Scheduled: ${added.title}`, time: "Just Now", read: false },
@@ -465,7 +486,6 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
             { id: "registrations", label: "Registrations", icon: Users },
             { id: "volunteers", label: "Volunteers", icon: CheckSquare },
             { id: "judges", label: "Judges", icon: Shield },
-            { id: "faculty", label: "Faculty Panel", icon: ShieldAlert },
             { id: "attendance", label: "Attendance", icon: Camera },
             { id: "certificates", label: "Certificates", icon: Award },
             { id: "gallery", label: "Gallery", icon: Image },
@@ -748,7 +768,6 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
                     <option value="event_host">Event Host</option>
                     <option value="volunteer">Volunteer</option>
                     <option value="judge">Judge</option>
-                    <option value="faculty">Faculty Advisor</option>
                     <option value="student">Student / Participant</option>
                   </select>
                 </div>
@@ -1104,70 +1123,129 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
           {/* ================== REGISTRATIONS TAB ================== */}
           {activeTab === "registrations" && (
             <div className="rounded-2xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm space-y-6">
-              <div className="flex justify-between items-center border-b border-slate-100 dark:border-zinc-800 pb-4">
+              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 border-b border-slate-100 dark:border-zinc-800 pb-4">
                 <div>
                   <h3 className="text-lg font-bold">Registration Roster</h3>
                   <p className="text-xs text-slate-400">View real-time participant registration requests.</p>
                 </div>
-              </div>
-
-              {/* Registration Statistics Chart (CSS bars) */}
-              <div className="p-5 border border-slate-100 dark:border-zinc-800 rounded-2xl space-y-4 bg-slate-50/50 dark:bg-zinc-950/20">
-                <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Registration Growth Insights</h4>
-                <div className="flex items-end justify-between h-48 pt-6 select-none">
-                  {[
-                    { label: "Mon", height: "h-[40%]", val: "120" },
-                    { label: "Tue", height: "h-[65%]", val: "210" },
-                    { label: "Wed", height: "h-[50%]", val: "180" },
-                    { label: "Thu", height: "h-[85%]", val: "320" },
-                    { label: "Fri", height: "h-[95%]", val: "450" },
-                    { label: "Sat", height: "h-[70%]", val: "300" },
-                    { label: "Sun", height: "h-[80%]", val: "360" }
-                  ].map((bar, idx) => (
-                    <div key={idx} className="flex flex-col items-center flex-1 space-y-2">
-                      <div className="text-[10px] font-bold text-[#2563EB]">{bar.val}</div>
-                      <div className={cn("w-6 sm:w-10 bg-gradient-to-t from-[#2563EB] to-[#14B8A6] rounded-t-lg transition-all hover:opacity-85", bar.height)} />
-                      <span className="text-[10px] text-slate-400 font-semibold">{bar.label}</span>
-                    </div>
-                  ))}
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      const headers = "Name,Roll Number,Department,Phone,Email,Time,CheckIn,Payment\n";
+                      const rows = [
+                        "Rahul Verma,2023CS105,CSE,9876543210,rahul@uni.edu,2026-07-08T10:15:00Z,ABSENT,Paid",
+                        "Aman Gupta,2023EC082,ECE,8765432109,aman@uni.edu,2026-07-08T09:20:00Z,PRESENT,Paid",
+                        "Sneha Roy,2023ME041,ME,7654321098,sneha@uni.edu,2026-07-07T14:45:00Z,ABSENT,Pending"
+                      ].join("\n");
+                      const blob = new Blob([headers + rows], { type: "text/csv" });
+                      const url = URL.createObjectURL(blob);
+                      const a = document.createElement("a");
+                      a.href = url;
+                      a.download = "registration_roster.csv";
+                      a.click();
+                    }}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-250 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Export CSV
+                  </button>
+                  <button
+                    onClick={() => alert("Exporting Roster as Excel Spreadsheet (.xlsx)...")}
+                    className="px-3 py-1.5 bg-slate-100 hover:bg-slate-250 dark:bg-zinc-800 dark:hover:bg-zinc-700 text-slate-700 dark:text-zinc-200 rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Export Excel
+                  </button>
+                  <button
+                    onClick={() => window.print()}
+                    className="px-3 py-1.5 bg-[#2563EB] hover:bg-blue-600 text-white rounded-lg text-xs font-semibold cursor-pointer"
+                  >
+                    Print Roster
+                  </button>
                 </div>
               </div>
 
-              <div className="overflow-x-auto border border-slate-100 dark:border-zinc-800 rounded-2xl">
+              {/* Search, Filter, Sort Controls */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">Search Participant</label>
+                  <input
+                    type="text"
+                    placeholder="Search by name, roll, email..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#2563EB]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">Filter by Event</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#2563EB]">
+                    <option value="">All Events</option>
+                    <option value="AI Odyssey Hackathon 2026">AI Odyssey Hackathon 2026</option>
+                    <option value="Diwali Fest 2026">Diwali Fest 2026</option>
+                    <option value="Web Design Workshop">Web Design Workshop</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">Sort Order</label>
+                  <select className="w-full bg-slate-50 border border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white rounded-lg px-3 py-2 text-xs outline-none focus:border-[#2563EB]">
+                    <option value="newest">Registration Time (Newest)</option>
+                    <option value="oldest">Registration Time (Oldest)</option>
+                    <option value="name_asc">Participant Name (A-Z)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Roster Table */}
+              <div className="overflow-x-auto border border-slate-100 dark:border-zinc-800 rounded-2xl shadow-sm">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
                     <tr className="bg-slate-50 dark:bg-zinc-900 border-b border-slate-100 dark:border-zinc-800 text-slate-400 uppercase font-black tracking-wider">
-                      <th className="p-4">Student</th>
-                      <th className="p-4">Event</th>
-                      <th className="p-4">Form Custom Fields</th>
-                      <th className="p-4">Check-In QR</th>
-                      <th className="p-4">Status</th>
+                      <th className="p-4">Participant</th>
+                      <th className="p-4">Roll Number</th>
+                      <th className="p-4">Department</th>
+                      <th className="p-4">Phone</th>
+                      <th className="p-4">Email</th>
+                      <th className="p-4">Registered At</th>
+                      <th className="p-4">Attendance</th>
+                      <th className="p-4">Payment</th>
                     </tr>
                   </thead>
                   <tbody>
                     {[
-                      { name: "Rahul Verma", email: "rahul@uni.edu", event: "AI Hackathon", fields: "Resume: Link, Track: ML", qr: "ESP-512-R", status: "Approved" },
-                      { name: "Aman Gupta", email: "aman@uni.edu", event: "Diwali Fest", fields: "Food: Veg, Gear: No", qr: "ESP-581-V", status: "Approved" },
-                      { name: "Sneha Roy", email: "sneha@uni.edu", event: "Web Workshop", fields: "Familiarity: Basic", qr: "ESP-901-W", status: "Pending" }
-                    ].map((row, i) => (
-                      <tr key={i} className="border-b border-slate-100 dark:border-zinc-800/50 hover:bg-slate-50/50 dark:hover:bg-zinc-900/30">
-                        <td className="p-4">
-                          <p className="font-bold">{row.name}</p>
-                          <span className="text-slate-400">{row.email}</span>
-                        </td>
-                        <td className="p-4 font-semibold">{row.event}</td>
-                        <td className="p-4 text-slate-500">{row.fields}</td>
-                        <td className="p-4 font-mono text-[10px]">{row.qr}</td>
-                        <td className="p-4">
-                          <span className={cn(
-                            "px-2 py-0.5 rounded font-bold uppercase text-[9px]",
-                            row.status === "Approved" ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
-                          )}>
-                            {row.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
+                      { name: "Rahul Verma", roll: "2023CS105", dept: "CSE", phone: "9876543210", email: "rahul@uni.edu", time: "July 08, 10:15 AM", checkIn: "ABSENT", payment: "Paid" },
+                      { name: "Aman Gupta", roll: "2023EC082", dept: "ECE", phone: "8765432109", email: "aman@uni.edu", time: "July 08, 09:20 AM", checkIn: "PRESENT", payment: "Paid" },
+                      { name: "Sneha Roy", roll: "2023ME041", dept: "ME", phone: "7654321098", email: "sneha@uni.edu", time: "July 07, 02:45 PM", checkIn: "ABSENT", payment: "Pending" }
+                    ]
+                      .filter(row =>
+                        row.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        row.roll.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        row.email.toLowerCase().includes(searchQuery.toLowerCase())
+                      )
+                      .map((row, i) => (
+                        <tr key={i} className="border-b border-slate-100 dark:border-zinc-800/50 hover:bg-slate-50/50 dark:hover:bg-zinc-900/30">
+                          <td className="p-4 font-bold text-slate-900 dark:text-white">{row.name}</td>
+                          <td className="p-4 font-mono font-semibold">{row.roll}</td>
+                          <td className="p-4 font-semibold text-slate-600 dark:text-zinc-300">{row.dept}</td>
+                          <td className="p-4 font-medium text-slate-600 dark:text-zinc-300">{row.phone}</td>
+                          <td className="p-4 text-slate-500">{row.email}</td>
+                          <td className="p-4 text-slate-400 font-semibold">{row.time}</td>
+                          <td className="p-4">
+                            <span className={cn(
+                              "px-2 py-0.5 rounded font-bold uppercase text-[9px]",
+                              row.checkIn === "PRESENT" ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" : "bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300"
+                            )}>
+                              {row.checkIn}
+                            </span>
+                          </td>
+                          <td className="p-4">
+                            <span className={cn(
+                              "px-2 py-0.5 rounded font-bold uppercase text-[9px]",
+                              row.payment === "Paid" ? "bg-green-100 text-green-800 dark:bg-green-950 dark:text-green-300" : "bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                            )}>
+                              {row.payment}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
                   </tbody>
                 </table>
               </div>
@@ -1735,9 +1813,9 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       {/* Create Event Modal */}
       {showCreateEventModal && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 select-none">
-          <div className="w-full max-w-md bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-xl space-y-4">
+          <div className="w-full max-w-lg bg-white dark:bg-zinc-900 border border-slate-200 dark:border-zinc-800 rounded-2xl p-6 shadow-xl space-y-4 max-h-[85vh] overflow-y-auto scrollbar-thin">
             <h3 className="text-base font-bold">Create New Event</h3>
-            <form onSubmit={executeCreateEvent} className="space-y-3">
+            <form onSubmit={executeCreateEvent} className="space-y-4">
               <div>
                 <label className="block text-[10px] font-black text-slate-400 uppercase mb-1">Event Title *</label>
                 <input type="text" required value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className="w-full bg-slate-50 border border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white rounded-lg p-2 text-xs outline-none focus:border-[#2563EB]" placeholder="e.g. Diwali Fest 2026" />
@@ -1752,7 +1830,103 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
                   <input type="text" required value={newEvent.venue} onChange={(e) => setNewEvent({ ...newEvent, venue: e.target.value })} className="w-full bg-slate-50 border border-slate-200 dark:border-zinc-800 dark:bg-zinc-950 dark:text-white rounded-lg p-2 text-xs outline-none focus:border-[#2563EB]" placeholder="e.g. Auditorium" />
                 </div>
               </div>
-              <div className="flex gap-2 justify-end pt-2">
+
+              {/* Dynamic Form Builder Section */}
+              <div className="border-t border-slate-100 dark:border-zinc-800 pt-3 space-y-3">
+                <h4 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider">Registration Form Builder</h4>
+                
+                {/* Field creator inputs */}
+                <div className="p-3 border border-slate-100 dark:border-zinc-800 rounded-xl bg-slate-50/50 dark:bg-zinc-950/20 space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Field Key (unique)</label>
+                      <input type="text" value={newFieldName} onChange={(e) => setNewFieldName(e.target.value.toLowerCase().replace(/\s+/g, "_"))} className="w-full bg-white dark:bg-zinc-950 border border-slate-250 dark:border-zinc-850 rounded p-1.5 text-[10px] outline-none" placeholder="e.g. roll_no" />
+                    </div>
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Field Type</label>
+                      <select value={newFieldType} onChange={(e) => setNewFieldType(e.target.value)} className="w-full bg-white dark:bg-zinc-950 border border-slate-250 dark:border-zinc-850 rounded p-1.5 text-[10px] outline-none">
+                        <option value="text">Short Text</option>
+                        <option value="textarea">Long Text</option>
+                        <option value="email">Email</option>
+                        <option value="phone">Phone</option>
+                        <option value="number">Number</option>
+                        <option value="dropdown">Dropdown</option>
+                        <option value="checkbox">Checkbox</option>
+                        <option value="github_url">GitHub Link</option>
+                        <option value="linkedin_url">LinkedIn Link</option>
+                        <option value="file">File/Resume Upload</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Display Label</label>
+                    <input type="text" value={newFieldLabel} onChange={(e) => setNewFieldLabel(e.target.value)} className="w-full bg-white dark:bg-zinc-950 border border-slate-250 dark:border-zinc-850 rounded p-1.5 text-[10px] outline-none" placeholder="e.g. Roll Number / Student ID" />
+                  </div>
+
+                  {newFieldType === "dropdown" && (
+                    <div>
+                      <label className="block text-[9px] font-bold text-slate-400 uppercase mb-0.5">Options (comma separated)</label>
+                      <input type="text" value={newFieldOptions} onChange={(e) => setNewFieldOptions(e.target.value)} className="w-full bg-white dark:bg-zinc-950 border border-slate-250 dark:border-zinc-850 rounded p-1.5 text-[10px] outline-none" placeholder="e.g. CSE, ECE, ME" />
+                    </div>
+                  )}
+
+                  <div className="flex items-center justify-between">
+                    <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 cursor-pointer select-none">
+                      <input type="checkbox" checked={newFieldRequired} onChange={(e) => setNewFieldRequired(e.target.checked)} className="rounded text-indigo-600 focus:ring-indigo-500" />
+                      Required Field
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!newFieldName || !newFieldLabel) {
+                          alert("Please fill in both the Field Key and Display Label.");
+                          return;
+                        }
+                        const added = {
+                          name: newFieldName,
+                          label: newFieldLabel,
+                          type: newFieldType,
+                          required: newFieldRequired,
+                          options: newFieldType === "dropdown" ? newFieldOptions.split(",").map(o => o.trim()) : undefined
+                        };
+                        setCustomFields([...customFields, added]);
+                        setNewFieldName("");
+                        setNewFieldLabel("");
+                        setNewFieldOptions("");
+                        setNewFieldRequired(false);
+                      }}
+                      className="px-2.5 py-1 bg-indigo-600 text-white rounded text-[10px] font-bold hover:bg-indigo-700 cursor-pointer"
+                    >
+                      + Add Field
+                    </button>
+                  </div>
+                </div>
+
+                {/* Form fields preview list */}
+                {customFields.length > 0 && (
+                  <div className="space-y-1.5">
+                    <h5 className="text-[10px] font-black text-slate-400 uppercase">Form Schema Preview</h5>
+                    <div className="space-y-1 border border-slate-100 dark:border-zinc-800 rounded-xl p-3 bg-white dark:bg-zinc-950/40">
+                      {customFields.map((f, idx) => (
+                        <div key={idx} className="flex justify-between items-center text-[11px] p-1.5 border-b border-slate-50 dark:border-zinc-800 last:border-none">
+                          <span className="font-semibold text-slate-700 dark:text-zinc-300">
+                            {f.label} <span className="text-[9px] text-slate-400">({f.type})</span>
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setCustomFields(customFields.filter((_, i) => i !== idx))}
+                            className="text-red-500 hover:underline text-[9px] cursor-pointer"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2 border-t border-slate-100 dark:border-zinc-800">
                 <button type="button" onClick={() => setShowCreateEventModal(false)} className="px-4 py-2 border border-slate-200 dark:border-zinc-800 rounded-lg text-xs font-semibold hover:bg-slate-50 dark:hover:bg-zinc-800 cursor-pointer">Cancel</button>
                 <button type="submit" className="px-4 py-2 bg-[#2563EB] text-white hover:bg-blue-600 rounded-lg text-xs font-semibold cursor-pointer">Create</button>
               </div>
@@ -1984,6 +2158,7 @@ export default function DashboardPage() {
       case "super_admin":
         router.push("/dashboard/super-admin");
         break;
+      case "organization_admin":
       case "society_president":
       case "society_admin":
         router.push("/dashboard/admin");
@@ -1995,8 +2170,9 @@ export default function DashboardPage() {
         router.push("/dashboard/judge");
         break;
       case "student":
+      case "participant":
       default:
-        router.push("/dashboard/student");
+        router.push("/dashboard/participant");
         break;
     }
   }, [user, isAuthenticated, router]);
