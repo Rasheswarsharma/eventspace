@@ -40,10 +40,7 @@ export default function LoginPage() {
       const { user, access_token } = res.data;
       setAuth(user, access_token);
       setSuccess(true);
-      
-      setTimeout(() => {
-        router.push("/dashboard");
-      }, 1500);
+      router.push("/dashboard");
     } catch (err) {
       const error = err as { response?: { data?: { detail?: string } } };
       const detail = error.response?.data?.detail;

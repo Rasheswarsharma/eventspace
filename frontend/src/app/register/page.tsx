@@ -134,23 +134,22 @@ function RegisterContent() {
           });
           const { user, access_token } = loginRes.data;
           setAuth(user, access_token);
-          
           // Switch view to Society Onboarding
           setTimeout(() => {
             setShowOnboarding(true);
             setLoading(false);
-          }, 1500);
+          }, 300);
         } catch {
           // Fallback if login fails
           setTimeout(() => {
             router.push("/login");
-          }, 2000);
+          }, 300);
         }
       } else {
         // Participant or other roles: redirect to Login
         setTimeout(() => {
           router.push("/login");
-        }, 2000);
+        }, 500);
       }
     } catch (err) {
       const errorResponse = err as { response?: { data?: { detail?: string | { msg?: string }[] } } };
@@ -201,7 +200,7 @@ function RegisterContent() {
       setOnboardingSuccess(true);
       setTimeout(() => {
         router.push("/dashboard/admin");
-      }, 1500);
+      }, 300);
     } catch (err) {
       const errorResponse = err as { response?: { data?: { detail?: string } } };
       const detail = errorResponse.response?.data?.detail;

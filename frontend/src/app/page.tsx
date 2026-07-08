@@ -164,51 +164,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="mx-auto max-w-5xl px-6 py-24 space-y-12">
-        <div className="text-center space-y-3">
-          <h2 className="text-3xl font-black tracking-tight sm:text-4xl text-gradient">Core Capabilities</h2>
-          <p className="text-slate-500 dark:text-zinc-400 max-w-lg mx-auto font-medium">
-            Everything your campus organization needs to coordinate and execute events seamlessly.
-          </p>
-        </div>
-
-        <div className="grid gap-8 sm:grid-cols-3">
-          {/* Card 1 */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4 card-lift shadow-sm">
-            <div className="inline-flex p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-              <Users className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-bold">Society Management</h3>
-            <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
-              Streamline operations, delegate core tasks, and maintain cross-tenant data separation for every registered club.
-            </p>
-          </div>
-
-          {/* Card 2 */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4 card-lift shadow-sm">
-            <div className="inline-flex p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-              <Calendar className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-bold">Event Management</h3>
-            <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
-              Toggle event modules dynamically and build customized registration forms matching the specific requirements of any fest.
-            </p>
-          </div>
-
-          {/* Card 3 */}
-          <div className="rounded-xl border border-slate-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900 space-y-4 card-lift shadow-sm">
-            <div className="inline-flex p-3 rounded-lg bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400">
-              <Award className="h-6 w-6" />
-            </div>
-            <h3 className="text-xl font-bold">Certificates & Attendance</h3>
-            <p className="text-sm text-slate-600 dark:text-zinc-400 leading-relaxed font-normal">
-              Issue secure, verifiable PDF certificates with public verification lookups and track check-ins via camera QR scanning.
-            </p>
-          </div>
-        </div>
-      </section>
-
 
 
       {/* Footer */}
