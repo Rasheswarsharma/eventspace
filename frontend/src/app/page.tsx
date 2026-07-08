@@ -109,7 +109,7 @@ export default function Home() {
       </header>
 
       {/* Hero Section */}
-      <section className="flex flex-1 flex-col justify-center px-6 py-20 md:px-12 bg-gradient-premium border-b border-slate-200/60 dark:border-zinc-900">
+      <section className="relative flex flex-1 flex-col justify-center px-6 py-20 md:px-12 bg-gradient-premium border-b border-slate-200/60 dark:border-zinc-900 overflow-hidden">
         <div className="mx-auto max-w-7xl w-full grid md:grid-cols-12 gap-12 items-center">
           
           {/* Left Text Column */}
