@@ -29,6 +29,7 @@ interface MockTask {
   title: string;
   status: "pending" | "completed";
   assignedTo: string;
+  societyId?: string;
 }
 
 interface MockEvent {
@@ -39,6 +40,7 @@ interface MockEvent {
   volunteers: number;
   venue: string;
   status: "Running" | "Upcoming" | "Deadline";
+  societyId?: string;
 }
 
 interface NotificationItem {
@@ -47,6 +49,19 @@ interface NotificationItem {
   time: string;
   read: boolean;
 }
+
+export interface MockSociety {
+  id: string;
+  name: string;
+  shortName: string;
+}
+
+export const MOCK_SOCIETIES: MockSociety[] = [
+  { id: "csi", name: "Computer Society of India", shortName: "CSI" },
+  { id: "ieee", name: "IEEE Student Branch", shortName: "IEEE" },
+  { id: "robotics", name: "Robotics & IoT Club", shortName: "Robotics" },
+  { id: "cultural", name: "Cultural & Drama Society", shortName: "Cultural" },
+];
 
 export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
   const router = useRouter();
@@ -87,26 +102,28 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
     core: []
   });
 
-  const [tasks, setTasks] = useState<MockTask[]>([
-    { id: "1", title: "Set up registration desks", status: "completed", assignedTo: "Priya Sharma" },
-    { id: "2", title: "Print QR check-in badges", status: "pending", assignedTo: "Rahul Verma" },
-    { id: "3", title: "Test stage audio system", status: "pending", assignedTo: "Priya Sharma" },
-    { id: "4", title: "Welcome guest speakers", status: "pending", assignedTo: "Simran Kaur" }
+  const [selectedSocietyId, setSelectedSocietyId] = useState<string>("csi");
+
+  const [allTasks, setAllTasks] = useState<MockTask[]>([
+    { id: "1", title: "Set up registration desks", status: "completed", assignedTo: "Priya Sharma", societyId: "cultural" },
+    { id: "2", title: "Print QR check-in badges", status: "pending", assignedTo: "Rahul Verma", societyId: "csi" },
+    { id: "3", title: "Test stage audio system", status: "pending", assignedTo: "Priya Sharma", societyId: "cultural" },
+    { id: "4", title: "Welcome guest speakers", status: "pending", assignedTo: "Simran Kaur", societyId: "robotics" }
   ]);
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
-  const [events, setEvents] = useState<MockEvent[]>([
-    { id: "1", title: "Diwali Fest 2026", date: "Tomorrow", registered: 300, volunteers: 25, venue: "Auditorium", status: "Upcoming" },
-    { id: "2", title: "AI Hackathon", date: "Running", registered: 120, volunteers: 10, venue: "Lab 3", status: "Running" },
-    { id: "3", title: "Web Design Workshop", date: "July 15", registered: 80, volunteers: 5, venue: "Seminar Hall", status: "Upcoming" },
-    { id: "4", title: "IoT Innovation Expo", date: "July 20", registered: 450, volunteers: 40, venue: "Main Ground", status: "Deadline" }
+  const [allEvents, setAllEvents] = useState<MockEvent[]>([
+    { id: "1", title: "Diwali Fest 2026", date: "Tomorrow", registered: 300, volunteers: 25, venue: "Auditorium", status: "Upcoming", societyId: "cultural" },
+    { id: "2", title: "AI Hackathon", date: "Running", registered: 120, volunteers: 10, venue: "Lab 3", status: "Running", societyId: "csi" },
+    { id: "3", title: "Web Design Workshop", date: "July 15", registered: 80, volunteers: 5, venue: "Seminar Hall", status: "Upcoming", societyId: "csi" },
+    { id: "4", title: "IoT Innovation Expo", date: "July 20", registered: 450, volunteers: 40, venue: "Main Ground", status: "Deadline", societyId: "robotics" }
   ]);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     { id: "1", text: "Registration Approved: Diwali Fest 2026", time: "5 mins ago", read: false },
     { id: "2", text: "Volunteer Assigned: Priya Sharma to desk coordination", time: "1 hour ago", read: false },
     { id: "3", text: "Certificate Generated for Aman Gupta", time: "4 hours ago", read: true },
-    { id: "4", text: "Budget Approved: ₹45,000 for Sound equipment", time: "Yesterday", read: true },
+    { id: "4", text: "Budget Approved: sound equipment", time: "Yesterday", read: true },
     { id: "5", text: "Attendance Excel sheet uploaded successfully", time: "2 days ago", read: true }
   ]);
 
@@ -135,9 +152,9 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
   const [newVolunteer, setNewVolunteer] = useState({ name: "", phone: "", email: "", role: "volunteer" });
   const [newCert, setNewCert] = useState({ studentName: "", eventName: "", hash: "" });
   const [newAnnouncement, setNewAnnouncement] = useState({ title: "", content: "", tag: "General" });
-  const [announcements, setAnnouncements] = useState([
-    { id: "1", title: "Diwali Fest Dress Code", content: "Wear traditional ethnic wear tomorrow!", date: "Today", tag: "Fests" },
-    { id: "2", title: "AI Rubric Published", content: "Check the judicial evaluation panel for details.", date: "Yesterday", tag: "Academic" }
+  const [allAnnouncements, setAllAnnouncements] = useState([
+    { id: "1", title: "Diwali Fest Dress Code", content: "Wear traditional ethnic wear tomorrow!", date: "Today", tag: "Fests", societyId: "cultural" },
+    { id: "2", title: "AI Rubric Published", content: "Check the judicial evaluation panel for details.", date: "Yesterday", tag: "Academic", societyId: "csi" }
   ]);
 
   // QR Scanning Simulation
@@ -159,12 +176,18 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
   const [lookupResult, setLookupResult] = useState<CertificateLookupResult | null>(null);
 
   // Budget states
-  const [budgetItems] = useState([
-    { id: "1", category: "Decorations", allocated: 50000, spent: 45000, status: "Approved" },
-    { id: "2", category: "Sound & AV", allocated: 30000, spent: 30000, status: "Approved" },
-    { id: "3", category: "Prizes & Medals", allocated: 100000, spent: 85000, status: "Approved" },
-    { id: "4", category: "Catering", allocated: 50000, spent: 48000, status: "Pending" }
+  const [allBudgetItems] = useState([
+    { id: "1", category: "Decorations", allocated: 50000, spent: 45000, status: "Approved", societyId: "cultural" },
+    { id: "2", category: "Sound & AV", allocated: 30000, spent: 30000, status: "Approved", societyId: "cultural" },
+    { id: "3", category: "Prizes & Medals", allocated: 100000, spent: 85000, status: "Approved", societyId: "csi" },
+    { id: "4", category: "Catering", allocated: 50000, spent: 48000, status: "Pending", societyId: "cultural" }
   ]);
+
+  // Filtered lists for multi-tenant simulation
+  const events = allEvents.filter(e => !e.societyId || e.societyId === selectedSocietyId);
+  const tasks = allTasks.filter(t => !t.societyId || t.societyId === selectedSocietyId);
+  const announcements = allAnnouncements.filter(a => !a.societyId || a.societyId === selectedSocietyId);
+  const budgetItems = allBudgetItems.filter(b => !b.societyId || b.societyId === selectedSocietyId);
 
   useEffect(() => {
     const timer = setTimeout(() => setMounted(true), 0);
@@ -298,9 +321,10 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       registered: newEvent.registered || 0,
       volunteers: newEvent.volunteers || 0,
       venue: newEvent.venue,
-      status: "Upcoming"
+      status: "Upcoming",
+      societyId: selectedSocietyId
     };
-    setEvents([added, ...events]);
+    setAllEvents([added, ...allEvents]);
     setShowCreateEventModal(false);
     setNewEvent({ title: "", date: "", venue: "", registered: 0, volunteers: 0 });
     // Push a notification
@@ -317,9 +341,10 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       id: Date.now().toString(),
       title: `Assigned duty to ${newVolunteer.name}`,
       status: "pending",
-      assignedTo: newVolunteer.name
+      assignedTo: newVolunteer.name,
+      societyId: selectedSocietyId
     };
-    setTasks([addedTask, ...tasks]);
+    setAllTasks([addedTask, ...allTasks]);
     setShowAddVolunteerModal(false);
     setNewVolunteer({ name: "", phone: "", email: "", role: "volunteer" });
   };
@@ -345,9 +370,10 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       title: newAnnouncement.title,
       content: newAnnouncement.content,
       date: "Today",
-      tag: newAnnouncement.tag
+      tag: newAnnouncement.tag,
+      societyId: selectedSocietyId
     };
-    setAnnouncements([added, ...announcements]);
+    setAllAnnouncements([added, ...allAnnouncements]);
     setShowAnnounceModal(false);
     setNewAnnouncement({ title: "", content: "", tag: "General" });
   };
@@ -391,8 +417,8 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
 
   // Toggle tasks check
   const toggleTaskStatus = (id: string) => {
-    setTasks(
-      tasks.map((t) => (t.id === id ? { ...t, status: t.status === "completed" ? "pending" : "completed" } : t))
+    setAllTasks(
+      allTasks.map((t) => (t.id === id ? { ...t, status: t.status === "completed" ? "pending" : "completed" } : t))
     );
   };
 
@@ -404,9 +430,10 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
       id: Date.now().toString(),
       title: newTaskTitle,
       status: "pending",
-      assignedTo: "Priya Sharma"
+      assignedTo: "Priya Sharma",
+      societyId: selectedSocietyId
     };
-    setTasks([...tasks, newT]);
+    setAllTasks([...allTasks, newT]);
     setNewTaskTitle("");
   };
 
@@ -693,25 +720,40 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
               </p>
             </div>
 
-            {/* Role Simulation Switcher dropdown */}
-            {process.env.NODE_ENV !== "production" && (
+            {/* Society & Role Simulation switcher */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 p-2 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider pl-1.5">View As Role:</span>
+                <span className="text-xs font-black text-slate-400 uppercase tracking-wider pl-1.5">Society Space:</span>
                 <select
-                  value={currentRole}
-                  onChange={(e) => setCurrentRole(e.target.value)}
+                  value={selectedSocietyId}
+                  onChange={(e) => setSelectedSocietyId(e.target.value)}
                   className="bg-slate-50 dark:bg-zinc-950 dark:text-white border border-slate-200 dark:border-zinc-800 text-xs font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] cursor-pointer"
                 >
-                  <option value="super_admin">Super Admin</option>
-                  <option value="society_president">Society Admin / President</option>
-                  <option value="event_host">Event Host</option>
-                  <option value="volunteer">Volunteer</option>
-                  <option value="judge">Judge</option>
-                  <option value="faculty">Faculty Advisor</option>
-                  <option value="student">Student / Participant</option>
+                  {MOCK_SOCIETIES.map(soc => (
+                    <option key={soc.id} value={soc.id}>{soc.name} ({soc.shortName})</option>
+                  ))}
                 </select>
               </div>
-            )}
+
+              {process.env.NODE_ENV !== "production" && (
+                <div className="flex items-center gap-2 rounded-xl bg-white border border-slate-200 p-2 dark:border-zinc-800 dark:bg-zinc-900 shadow-sm">
+                  <span className="text-xs font-black text-slate-400 uppercase tracking-wider pl-1.5">View As Role:</span>
+                  <select
+                    value={currentRole}
+                    onChange={(e) => setCurrentRole(e.target.value)}
+                    className="bg-slate-50 dark:bg-zinc-950 dark:text-white border border-slate-200 dark:border-zinc-800 text-xs font-semibold rounded-lg px-3 py-1.5 outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] cursor-pointer"
+                  >
+                    <option value="super_admin">Super Admin</option>
+                    <option value="society_president">Society Admin / President</option>
+                    <option value="event_host">Event Host</option>
+                    <option value="volunteer">Volunteer</option>
+                    <option value="judge">Judge</option>
+                    <option value="faculty">Faculty Advisor</option>
+                    <option value="student">Student / Participant</option>
+                  </select>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* ========================================================= */}
