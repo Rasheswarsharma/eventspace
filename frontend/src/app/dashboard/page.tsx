@@ -575,16 +575,22 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
                 <span className="hidden sm:inline">Quick Add</span>
               </button>
               {showQuickAdd && (
-                <div className="absolute right-0 top-9 w-52 rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 z-50">
-                  <button onClick={() => { setShowCreateEventModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Create Event</button>
-                  <button onClick={() => { setShowAddVolunteerModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Add Volunteer</button>
-                  <button onClick={() => { setShowIssueCertModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Issue Certificate</button>
-                  <button onClick={() => { setShowAnnounceModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Create Announcement</button>
-                  <button onClick={() => { downloadReport("pdf"); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Generate Report</button>
-                </div>
+                <>
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent cursor-default"
+                    onClick={() => setShowQuickAdd(false)}
+                  />
+                  <div className="absolute right-0 top-9 w-52 rounded-xl border border-slate-200 bg-white py-2 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 z-50">
+                    <button onClick={() => { setShowCreateEventModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Create Event</button>
+                    <button onClick={() => { setShowAddVolunteerModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Add Volunteer</button>
+                    <button onClick={() => { setShowIssueCertModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Issue Certificate</button>
+                    <button onClick={() => { setShowAnnounceModal(true); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Create Announcement</button>
+                    <button onClick={() => { downloadReport("pdf"); setShowQuickAdd(false); }} className="w-full text-left px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 dark:text-zinc-300 dark:hover:bg-zinc-800">Generate Report</button>
+                  </div>
+                </>
               )}
             </div>
-
+ 
             {/* Notifications Panel */}
             <div className="relative">
               <button
@@ -600,29 +606,35 @@ export function DashboardContainer({ defaultRole }: { defaultRole?: string }) {
                   <span className="absolute top-1.5 right-1.5 h-2.5 w-2.5 rounded-full bg-[#EF4444] border-2 border-white dark:border-zinc-900" />
                 )}
               </button>
-
+ 
               {showNotifications && (
-                <div className="absolute right-0 top-11 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 z-50">
-                  <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-zinc-800 pb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Notifications</span>
-                    <button onClick={() => setNotifications([])} className="text-xs text-red-500 hover:underline cursor-pointer">Clear all</button>
-                  </div>
-                  <div className="space-y-2.5 max-h-64 overflow-y-auto">
-                    {notifications.length === 0 ? (
-                      <p className="text-xs text-slate-400 py-3 text-center">No notifications yet.</p>
-                    ) : (
-                      notifications.map(notif => (
-                        <div key={notif.id} className="flex gap-2 text-xs leading-relaxed items-start border-b border-slate-50 dark:border-zinc-800/50 pb-2 last:border-none">
-                          <div className="h-2 w-2 mt-1.5 rounded-full bg-[#2563EB]" />
-                          <div className="flex-1">
-                            <p className="font-semibold text-slate-700 dark:text-zinc-200">{notif.text}</p>
-                            <span className="text-[10px] text-slate-400">{notif.time}</span>
+                <>
+                  <div
+                    className="fixed inset-0 z-40 bg-transparent cursor-default"
+                    onClick={() => setShowNotifications(false)}
+                  />
+                  <div className="absolute right-0 top-11 w-80 rounded-xl border border-slate-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900 z-50">
+                    <div className="flex items-center justify-between mb-3 border-b border-slate-100 dark:border-zinc-800 pb-2">
+                      <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Notifications</span>
+                      <button onClick={() => setNotifications([])} className="text-xs text-red-500 hover:underline cursor-pointer">Clear all</button>
+                    </div>
+                    <div className="space-y-2.5 max-h-64 overflow-y-auto">
+                      {notifications.length === 0 ? (
+                        <p className="text-xs text-slate-400 py-3 text-center">No notifications yet.</p>
+                      ) : (
+                        notifications.map(notif => (
+                          <div key={notif.id} className="flex gap-2 text-xs leading-relaxed items-start border-b border-slate-50 dark:border-zinc-800/50 pb-2 last:border-none">
+                            <div className="h-2 w-2 mt-1.5 rounded-full bg-[#2563EB]" />
+                            <div className="flex-1">
+                              <p className="font-semibold text-slate-700 dark:text-zinc-200">{notif.text}</p>
+                              <span className="text-[10px] text-slate-400">{notif.time}</span>
+                            </div>
                           </div>
-                        </div>
-                      ))
-                    )}
+                        ))
+                      )}
+                    </div>
                   </div>
-                </div>
+                </>
               )}
             </div>
 
