@@ -466,12 +466,8 @@ function RegisterContent() {
               >
                 <option value="student">Participant / Student</option>
                 <option value="society_president">Society Admin / Organizer</option>
-                {inviteToken && (
-                  <>
-                    <option value="judge">Judge</option>
-                    <option value="volunteer">Volunteer</option>
-                  </>
-                )}
+                <option value="judge">Judge</option>
+                <option value="volunteer">Volunteer</option>
               </select>
             </div>
 
