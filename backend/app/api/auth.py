@@ -43,8 +43,8 @@ async def register(payload: UserCreate, request: Request):
             "full_name": payload.full_name,
             "email": payload.email,
             "role": payload.role or UserRole.STUDENT,
-            "is_active": True if payload.role == UserRole.SOCIETY_PRESIDENT else False,
-            "is_verified": True if payload.role == UserRole.SOCIETY_PRESIDENT else False,
+            "is_active": True,
+            "is_verified": True,
             "created_at": datetime.now(timezone.utc),
             "updated_at": datetime.now(timezone.utc)
         }
@@ -113,8 +113,8 @@ async def register(payload: UserCreate, request: Request):
         role=role,
         invited_by=invited_by,
         referral_code_used=referral_code_used,
-        is_active=True if role == UserRole.SOCIETY_PRESIDENT else False,
-        is_verified=True if role == UserRole.SOCIETY_PRESIDENT else False,
+        is_active=True,
+        is_verified=True,
         verification_token_hash=hash_token(verification_token),
         verification_token_expires_at=expires_at
     )
